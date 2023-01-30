@@ -27,12 +27,15 @@ export async function getUserTickets(req: AuthenticatedRequest, res: Response) {
     try {
         const enrollment =await checkUserEnrollment(userId)
         
-        console.log(enrollment)
         if(enrollment === null) { 
             return res.sendStatus(404)
         }
         
-        const userTickets = await getUserTicketsDB(userId)
+        const userTickets = await getUserTicketsDB(enrollment.id)
+
+        if(userTickets === null) { 
+            return res.sendStatus(404)
+        }
         
         res.status(200).send(userTickets)
 

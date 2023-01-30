@@ -7,8 +7,13 @@ export async function getTicketsTypesDB(): Promise<TicketType[]> {
     return promise
 }
 
-export async function getUserTicketsDB(userId: number): Promise<Ticket[]> {
+export async function getUserTicketsDB(enrollmentId: number): Promise<Ticket> {
 
-    const promise = prisma.ticket.findMany({ where: { id: userId } });
+    const promise = prisma.ticket.findFirst({ 
+        where: { enrollmentId },
+        include:{
+            TicketType: true
+        }
+     });
     return promise
 }
