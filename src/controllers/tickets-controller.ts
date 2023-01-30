@@ -1,6 +1,6 @@
 import { AuthenticatedRequest } from "@/middlewares";
 import { getTicketsTypesDB, getUserTicketsDB } from "@/repositories/tickets-repository";
-import { checkUserEnrollment } from "@/services/tickets-service";
+import validateTicketTypeId, { checkUserEnrollment } from "@/services/tickets-service";
 import { Response } from "express";
 
 
@@ -43,5 +43,31 @@ export async function getUserTickets(req: AuthenticatedRequest, res: Response) {
 
         console.log(error)
         res.sendStatus(404)
+    }
+}
+
+
+export async function postTicketType(req: AuthenticatedRequest, res: Response){
+
+    const {userId} = req
+    const {body} = req
+
+    if(validateTicketTypeId(body)) return res.sendStatus(400)
+
+    const enrollment =await checkUserEnrollment(userId)
+    
+    if(enrollment === null) { 
+        return res.sendStatus(404)
+    }
+
+    try {
+
+        
+
+        res.sendStatus(201)
+        
+    } catch (error) {
+        console.log(error)
+        res.sendStatus(500)
     }
 }
