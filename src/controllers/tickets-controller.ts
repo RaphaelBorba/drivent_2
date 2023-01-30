@@ -1,5 +1,6 @@
+import { prisma } from "@/config";
 import { AuthenticatedRequest } from "@/middlewares";
-import { getTicketsTypesDB, getUserTicketsDB } from "@/repositories/tickets-repository";
+import { getTicketTypeByIdDB, getTicketsTypesDB, getUserTicketsDB, postTicket } from "@/repositories/tickets-repository";
 import validateTicketTypeId, { checkUserEnrollment } from "@/services/tickets-service";
 import { Response } from "express";
 
@@ -52,19 +53,26 @@ export async function postTicketType(req: AuthenticatedRequest, res: Response){
     const {userId} = req
     const {body} = req
 
-    if(validateTicketTypeId(body)) return res.sendStatus(400)
+     if(validateTicketTypeId(body)) return res.sendStatus(400)
 
     const enrollment =await checkUserEnrollment(userId)
+
     
     if(enrollment === null) { 
         return res.sendStatus(404)
     }
 
+    const ticketType = await getTicketTypeByIdDB(body.ticketTypeId)
+
+    if(ticketType === null) return res.sendStatus(404)
+
     try {
 
+        await postTicket(body, enrollment.id)
         
+        const userTicket = await getUserTicketsDB(enrollment.id)
 
-        res.sendStatus(201)
+        res.status(201).send(userTicket)
         
     } catch (error) {
         console.log(error)
